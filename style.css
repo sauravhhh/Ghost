@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: #0a0a0a;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.creepy-font {
+    font-family: 'Creepster', cursive;
+}
+
+.radar-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+#radarCanvas {
+    border: 2px solid #00ff00;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, rgba(0,0,0,0.8) 100%);
+    box-shadow: 0 0 50px rgba(0,255,0,0.5);
+    width: 100%;
+    height: 100%;
+}
+
+.ghost-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff0000;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff0000;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.scan-line {
+    position: absolute;
+    width: 2px;
+    height: 50%;
+    background: linear-gradient(to bottom, transparent, #00ff00, transparent);
+    top: 0;
+    left: 50%;
+    transform-origin: bottom center;
+    animation: scan 4s linear infinite;
+}
+
+@keyframes scan {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.glow {
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+    to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00; }
+}
+
+.ghost-card {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.ghost-card:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: translateX(5px);
+}
+
+.spooky-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 50%, rgba(255, 0, 120, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.floating-ghost {
+    position: fixed;
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.1);
+    animation: float 20s infinite ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(10px) translateX(-10px); }
+    75% { transform: translateY(-10px) translateX(5px); }
+}
+
+.control-panel {
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(0, 255, 0, 0.2);
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.status-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.status-active {
+    background: #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+    animation: blink 1s infinite;
+}
+
+.status-inactive {
+    background: #ff0000;
+    box-shadow: 0 0 10px #ff0000;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.emf-meter {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.emf-level {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+    transition: width 0.3s ease;
+}
+
+.static-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="white" opacity="0.02"/><rect x="0" y="0" width="50" height="50" fill="black" opacity="0.02"/><rect x="50" y="50" width="50" height="50" fill="black" opacity="0.02"/></svg>');
+    pointer-events: none;
+    opacity: 0;
+    z-index: 999;
+    transition: opacity 0.3s ease;
+}
+
+.static-active {
+    opacity: 1;
+    animation: static 0.1s infinite;
+}
+
+@keyframes static {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-5px, 5px); }
+    20% { transform: translate(-5px, -5px); }
+    30% { transform: translate(5px, -5px); }
+    40% { transform: translate(5px, 5px); }
+    50% { transform: translate(-5px, 5px); }
+    60% { transform: translate(-5px, -5px); }
+    70% { transform: translate(5px, -5px); }
+    80% { transform: translate(5px, 5px); }
+    90% { transform: translate(-5px, 5px); }
+    100% { transform: translate(0, 0); }
+}
+
+.ghost-figure {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+    animation: ghostFloat 3s infinite ease-in-out;
+}
+
+@keyframes ghostFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .radar-container {
+        height: 300px;
+        max-width: 300px;
+    }
+    
+    .creepy-font {
+        font-size: 2.5rem;
+    }
+    
+    .control-panel {
+        padding: 1rem;
+    }
+    
+    .floating-ghost {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .radar-container {
+        height: 250px;
+        max-width: 250px;
+    }
+    
+    .creepy-font {
+        font-size: 2rem;
+    }
+    
+    .control-panel {
+        padding: 0.75rem;
+    }
+    
+    .floating-ghost {
+        font-size: 1.2rem;
+    }
+}
