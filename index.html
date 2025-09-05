@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost Scanner Pro - Paranormal Detection Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Roboto:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .creepy-font {
+            font-family: 'Creepster', cursive;
+        }
+        
+        .radar-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        
+        #radarCanvas {
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,255,0,0.1) 0%, rgba(0,0,0,0.8) 100%);
+            box-shadow: 0 0 50px rgba(0,255,0,0.5);
+        }
+        
+        .ghost-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ff0000;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 2px;
+            height: 200px;
+            background: linear-gradient(to bottom, transparent, #00ff00, transparent);
+            top: 0;
+            left: 50%;
+            transform-origin: bottom center;
+            animation: scan 4s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00; }
+        }
+        
+        .ghost-card {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .ghost-card:hover {
+            background: rgba(255, 0, 0, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .spooky-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 0, 120, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-ghost {
+            position: fixed;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(10px) translateX(-10px); }
+            75% { transform: translateY(-10px) translateX(5px); }
+        }
+        
+        .control-panel {
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(0, 255, 0, 0.2);
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .status-active {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            animation: blink 1s infinite;
+        }
+        
+        .status-inactive {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .emf-meter {
+            width: 200px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .emf-level {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000);
+            transition: width 0.3s ease;
+        }
+        
+        .static-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="0" y="0" width="100" height="100" fill="white" opacity="0.02"/><rect x="0" y="0" width="50" height="50" fill="black" opacity="0.02"/><rect x="50" y="50" width="50" height="50" fill="black" opacity="0.02"/></svg>');
+            pointer-events: none;
+            opacity: 0;
+            z-index: 999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .static-active {
+            opacity: 1;
+            animation: static 0.1s infinite;
+        }
+        
+        @keyframes static {
+            0% { transform: translate(0, 0); }
+            10% { transform: translate(-5px, 5px); }
+            20% { transform: translate(-5px, -5px); }
+            30% { transform: translate(5px, -5px); }
+            40% { transform: translate(5px, 5px); }
+            50% { transform: translate(-5px, 5px); }
+            60% { transform: translate(-5px, -5px); }
+            70% { transform: translate(5px, -5px); }
+            80% { transform: translate(5px, 5px); }
+            90% { transform: translate(-5px, 5px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <!-- Spooky Background -->
+    <div class="spooky-bg"></div>
+    <div class="static-effect" id="staticEffect"></div>
+    
+    <!-- Floating Ghosts -->
+    <div class="floating-ghost" style="top: 10%; left: 5%; animation-delay: 0s;">👻</div>
+    <div class="floating-ghost" style="top: 20%; right: 10%; animation-delay: 5s;">👻</div>
+    <div class="floating-ghost" style="bottom: 30%; left: 15%; animation-delay: 10s;">👻</div>
+    <div class="floating-ghost" style="bottom: 10%; right: 5%; animation-delay: 15s;">👻</div>
+    
+    <!-- Header -->
+    <header class="text-center py-8 relative z-10">
+        <h1 class="creepy-font text-6xl mb-2 glow">Ghost Scanner Pro</h1>
+        <p class="text-gray-400">Advanced Paranormal Detection System</p>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pb-8 relative z-10">
+        <!-- Scanner Section -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Radar Display -->
+                <div class="flex flex-col items-center">
+                    <div class="radar-container mb-4">
+                        <canvas id="radarCanvas" width="400" height="400"></canvas>
+                        <div class="scan-line"></div>
+                        <div id="ghostDots"></div>
+                    </div>
+                    
+                    <!-- EMF Meter -->
+                    <div class="w-full max-w-md">
+                        <h3 class="text-xl mb-2 flex items-center">
+                            <i class="fas fa-broadcast-tower mr-2"></i> EMF Meter
+                        </h3>
+                        <div class="emf-meter">
+                            <div class="emf-level" id="emfLevel" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span>0</span>
+                            <span>5</span>
+                            <span>10</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Control Panel -->
+                <div class="control-panel rounded-lg p-6">
+                    <h2 class="text-2xl mb-4 flex items-center">
+                        <i class="fas fa-cog mr-2"></i> Scanner Controls
+                    </h2>
+                    
+                    <!-- Status -->
+                    <div class="mb-6">
+                        <p class="mb-2">
+                            <span class="status-indicator status-inactive" id="statusIndicator"></span>
+                            Status: <span id="statusText">Inactive</span>
+                        </p>
+                    </div>
+                    
+                    <!-- Main Controls -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button id="startBtn" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg transition flex items-center justify-center">
+                            <i class="fas fa-play mr-2"></i> Start Scan
+                        </button>
+                        <button id="stopBtn" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition flex items-center justify-center" disabled>
+                            <i class="fas fa-stop mr-2"></i> Stop Scan
+                        </button>
+                    </div>
+                    
+                    <!-- Sensitivity Control -->
+                    <div class="mb-6">
+                        <label class="block mb-2">
+                            <i class="fas fa-sliders-h mr-2"></i> Sensitivity: <span id="sensitivityValue">50</span>%
+                        </label>
+                        <input type="range" id="sensitivitySlider" class="slider w-full h-2 rounded-lg" min="1" max="100" value="50">
+                    </div>
+                    
+                    <!-- Scan Mode -->
+                    <div class="mb-6">
+                        <label class="block mb-2">
+                            <i class="fas fa-satellite-dish mr-2"></i> Scan Mode
+                        </label>
+                        <select id="scanMode" class="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2">
+                            <option value="standard">Standard</option>
+                            <option value="aggressive">Aggressive</option>
+                            <option value="stealth">Stealth</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sound Toggle -->
+                    <div class="flex items-center">
+                        <input type="checkbox" id="soundToggle" class="mr-2" checked>
+                        <label for="soundToggle">
+                            <i class="fas fa-volume-up mr-2"></i> Sound Effects
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Detection Log -->
+        <section>
+            <h2 class="text-3xl mb-4 flex items-center">
+                <i class="fas fa-ghost mr-2"></i> Detection Log
+            </h2>
+            <div id="detectionLog" class="space-y-3 max-h-96 overflow-y-auto">
+                <p class="text-gray-500 text-center py-8">No ghosts detected yet. Start scanning...</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Audio Context for Sound Effects -->
+    <script>
+        // Ghost Scanner Pro JavaScript
+        
+        // Global variables
+        let isScanning = false;
+        let scanInterval;
+        let ghostInterval;
+        let emfInterval;
+        let audioContext;
+        let sensitivity = 50;
+        let scanMode = 'standard';
+        let soundEnabled = true;
+        let ghostCount = 0;
+        
+        // Ghost types with different properties
+        const ghostTypes = [
+            { name: 'Poltergeist', danger: 'High', color: '#ff0000', emf: 8 },
+            { name: 'Shadow Figure', danger: 'Medium', color: '#ff8800', emf: 5 },
+            { name: 'Orb', danger: 'Low', color: '#00ff00', emf: 2 },
+            { name: 'Apparition', danger: 'High', color: '#ff00ff', emf: 9 },
+            { name: 'Wisp', danger: 'Low', color: '#00ffff', emf: 3 },
+            { name: 'Demon', danger: 'Extreme', color: '#880000', emf: 10 },
+            { name: 'Spirit', danger: 'Medium', color: '#ffff00', emf: 6 },
+            { name: 'Phantom', danger: 'High', color: '#ff0088', emf: 7 }
+        ];
+        
+        // Initialize audio context
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // Play sound effect
+        function playSound(frequency, duration) {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Radar canvas setup
+        const canvas = document.getElementById('radarCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        // Draw radar grid
+        function drawRadar() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw circles
+            for (let i = 1; i <= 4; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, i * 50, 0, 2 * Math.PI);
+                ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
+                ctx.stroke();
+            }
+            
+            // Draw lines
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.3)';
+            ctx.stroke();
+        }
+        
+        // Initialize radar
+        drawRadar();
+        
+        // Create ghost dot
+        function createGhostDot() {
+            const ghost = ghostTypes[Math.floor(Math.random() * ghostTypes.length)];
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = Math.random() * 180 + 20;
+            const x = centerX + Math.cos(angle) * distance;
+            const y = centerY + Math.sin(angle) * distance;
+            
+            const dot = document.createElement('div');
+            dot.className = 'ghost-dot';
+            dot.style.left = x - 5 + 'px';
+            dot.style.top = y - 5 + 'px';
+            dot.style.background = ghost.color;
+            dot.style.boxShadow = `0 0 10px ${ghost.color}`;
+            
+            document.getElementById('ghostDots').appendChild(dot);
+            
+            // Remove dot after animation
+            setTimeout(() => dot.remove(), 3000);
+            
+            // Add to log
+            addToLog(ghost);
+            
+            // Play detection sound
+            playSound(800, 0.2);
+            
+            // Trigger static effect
+            triggerStatic();
+        }
+        
+        // Add ghost to detection log
+        function addToLog(ghost) {
+            ghostCount++;
+            const time = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'ghost-card rounded-lg p-4 flex items-center justify-between';
+            
+            const dangerColor = {
+                'Low': 'text-green-400',
+                'Medium': 'text-yellow-400',
+                'High': 'text-orange-400',
+                'Extreme': 'text-red-400'
+            };
+            
+            logEntry.innerHTML = `
+                <div class="flex items-center">
+                    <div class="w-4 h-4 rounded-full mr-3" style="background: ${ghost.color}; box-shadow: 0 0 10px ${ghost.color};"></div>
+                    <div>
+                        <h4 class="font-semibold">${ghost.name} #${ghostCount}</h4>
+                        <p class="text-sm text-gray-400">Detected at ${time}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="${dangerColor[ghost.danger]} font-semibold">${ghost.danger}</p>
+                    <p class="text-sm text-gray-400">EMF: ${ghost.emf}</p>
+                </div>
+            `;
+            
+            const log = document.getElementById('detectionLog');
+            if (log.children[0]?.classList.contains('text-gray-500')) {
+                log.innerHTML = '';
+            }
+            log.insertBefore(logEntry, log.firstChild);
+            
+            // Limit log entries
+            if (log.children.length > 10) {
+                log.removeChild(log.lastChild);
+            }
+        }
+        
+        // Update EMF meter
+        function updateEMF() {
+            const baseEMF = Math.random() * 3;
+            const ghostEMF = isScanning ? Math.random() * 7 : 0;
+            const totalEMF = Math.min(10, baseEMF + ghostEMF);
+            
+            document.getElementById('emfLevel').style.width = (totalEMF * 10) + '%';
+            
+            // Play EMF sound if high
+            if (totalEMF > 7 && Math.random() > 0.8) {
+                playSound(200 + totalEMF * 50, 0.1);
+            }
+        }
+        
+        // Trigger static effect
+        function triggerStatic() {
+            const staticEffect = document.getElementById('staticEffect');
+            staticEffect.classList.add('static-active');
+            setTimeout(() => staticEffect.classList.remove('static-active'), 200);
+        }
+        
+        // Start scanning
+        function startScanning() {
+            initAudio();
+            isScanning = true;
+            
+            // Update UI
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('statusIndicator').classList.remove('status-inactive');
+       
